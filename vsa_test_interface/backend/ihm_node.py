@@ -3,7 +3,7 @@ from rclpy.node import Node
 from ..frontend.ihm_main_window import IHMWindow
 
 from nav_msgs.msg import Odometry
-from std_msgs.msg import Empty
+from std_msgs.msg import Empty, UInt8MultiArray
 
 from neptus_msgs.msg import PlanDB
 from neptus_msgs.msg import PlanManeuver
@@ -22,6 +22,7 @@ class IHMNode(Node):
         self._pub_plan_db = None 
         self._pub_thruster = None
         self._pub_rudders = None
+        self._pub_can = None
 
         self._last_odometry_msg_stamp_ns: int = 0
         self._odometry_dt: float = 0.0
@@ -30,7 +31,14 @@ class IHMNode(Node):
 
     def __init_ui_integration__(self):
         self._main_window.main_widget.com_topics.bt_start_sampling.clicked.connect(self.__bt_start_stop_topics_com_callback__)
-        self._main_window.main_widget.mission.bt_send_mission_parameters.clicked.connect(self.__bt_send_mission_callback__)
+        self._main_window.main_widget.mission.bt_send_mission_parameters.clicked.connect(self.__bt_send_auto_mission_callback__)
+
+        self._main_window.main_widget.mission.manual_mission_widget.bt_send_command.clicked.connect(self.send_motors_command)
+        self._main_window.main_widget.mission.payload_test_widget.bt_send_command.clicked.connect(self.send_led_command)
+
+        self._main_window.main_widget.mission.payload_test_widget.relay_1.stateChanged.connect(self.send_relay_command)
+        self._main_window.main_widget.mission.payload_test_widget.relay_2.stateChanged.connect(self.send_relay_command)
+        self._main_window.main_widget.mission.payload_test_widget.relay_3.stateChanged.connect(self.send_relay_command)
     
 
     def __bt_start_stop_topics_com_callback__(self):
@@ -39,6 +47,7 @@ class IHMNode(Node):
 
         odometry_topic: str = self._main_window.main_widget.com_topics.odometry_topic
         heart_beat_topic: str = self._main_window.main_widget.com_topics.heart_beat_topic
+        can_topic: str = self._main_window.main_widget.com_topics.can_bus_topic
 
         plan_db_topic: str = "/plan_db"
 
@@ -52,11 +61,12 @@ class IHMNode(Node):
                 self._sub_odometry = self.create_subscription(Odometry, odometry_topic, self.__topic_odometry_callback__, 10)
                 self._sub_heart_beat = self.create_subscription(Empty, heart_beat_topic, self.__topic_heart_beat_callback__, 10)
                 self._pub_plan_db = self.create_publisher(PlanDB, plan_db_topic, 10)
+                self._pub_can = self.create_publisher(UInt8MultiArray, can_topic, 10)
 
             self._main_window.main_widget.xy_graph.clear()
             self._main_window.main_widget.speed_graph.clear()
 
-    def __bt_send_mission_callback__(self):
+    def __bt_send_auto_mission_callback__(self):
         if self._main_window.main_widget.mission.is_autonomous_mission:
             mission_time: float = self._main_window.main_widget.mission.autonomous_mission_widget.mission_time
             mission_start_delay: float = self._main_window.main_widget.mission.autonomous_mission_widget.mission_start_delay
@@ -86,7 +96,7 @@ class IHMNode(Node):
             msg.plan_spec.maneuvers.append(msg_plan_maneuver)
 
             self._pub_plan_db.publish(msg)
-            print("send mission")
+            print("send auto mission")
 
 
     def __topic_odometry_callback__(self, msg):
@@ -100,12 +110,32 @@ class IHMNode(Node):
 
             else:
                 speed_xy: float = math.sqrt((msg.twist.twist.linear.x * msg.twist.twist.linear.x) + (msg.twist.twist.linear.y * msg.twist.twist.linear.y))
-
-                self._main_window.main_widget.xy_graph.live_plot(msg.pose.pose.position.y, msg.pose.pose.position.x, False, force_dx=self._odometry_dt)
-                self._main_window.main_widget.speed_graph.live_plot(self._odometry_dt, speed_xy, True)
+                self._main_window.main_widget.xy_graph.live_plot(msg.pose.pose.position.y, msg.pose.pose.position.x, False) # force_dx=self._odometry_dt)
+                self._main_window.main_widget.speed_graph.live_plot(1.0, speed_xy, True)
 
 
 
     def __topic_heart_beat_callback__(self, msg):
         if self._is_connected:
             pass
+
+    def send_motors_command(self):
+        msg = UInt8MultiArray()
+        msg.data = self._main_window.main_widget.mission.manual_mission_widget.motors_msg
+        self._pub_can.publish(msg)
+
+        print(self._main_window.main_widget.mission.manual_mission_widget.motors_msg)
+
+    def send_relay_command(self):
+        msg = UInt8MultiArray()
+        msg.data = self._main_window.main_widget.mission.payload_test_widget.relays_msg
+        self._pub_can.publish(msg)
+
+        print(self._main_window.main_widget.mission.payload_test_widget.relays_msg)
+
+    def send_led_command(self):
+        msg = UInt8MultiArray()
+        msg.data = self._main_window.main_widget.mission.payload_test_widget.leds_msg
+        self._pub_can.publish(msg)
+
+        print(self._main_window.main_widget.mission.payload_test_widget.leds_msg)

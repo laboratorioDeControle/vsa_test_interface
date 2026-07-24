@@ -19,6 +19,10 @@ class ComTopicsWidget(QGroupBox):
         return self._le_heart_beat_topic.text()
 
     @property
+    def can_bus_topic(self) -> str:
+        return self._le_can_bus_topic.text()
+
+    @property
     def bt_start_sampling(self) -> QPushButton:
         return self._bt_start_sampling
 
@@ -31,6 +35,7 @@ class ComTopicsWidget(QGroupBox):
         self._le_thruster_input_topic: QLineEdit = QLineEdit("/lauv/controller/thrusters_setpoints")
         self._le_rudders_input_topic: QLineEdit = QLineEdit("/lauv/controller/rudders_setpoints")
         self._le_heart_beat_topic: QLineEdit = QLineEdit("/imc_heartbeat")
+        self._le_can_bus_topic: QLineEdit = QLineEdit("/write_can_msg")
 
         self._bt_start_sampling: QPushButton = QPushButton("Iniciar Comunicação")
 
@@ -49,8 +54,10 @@ class ComTopicsWidget(QGroupBox):
         self._layout.addWidget(self._le_rudders_input_topic, 2, 1, 1, 1)
         self._layout.addWidget(QLabel("Heart Beat:"), 3, 0, 1, 1)
         self._layout.addWidget(self._le_heart_beat_topic, 3, 1, 1, 1)
+        self._layout.addWidget(QLabel("CAN Bus:"), 4, 0, 1, 1)
+        self._layout.addWidget(self._le_can_bus_topic, 4, 1, 1, 1)
 
-        self._layout.addWidget(self._bt_start_sampling, 4, 0, 1, 2)
+        self._layout.addWidget(self._bt_start_sampling, 5, 0, 1, 2)
 
     def __init_backend__(self):
         pass
@@ -60,6 +67,7 @@ class ComTopicsWidget(QGroupBox):
         self._le_thruster_input_topic.setEnabled(not start_stop)
         self._le_rudders_input_topic.setEnabled(not start_stop)
         self._le_heart_beat_topic.setEnabled(not start_stop)
+        self._le_can_bus_topic.setEnabled(not start_stop)
 
         bt_text: str = "Iniciar Comunicação"
         

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QGroupBox, QLineEdit
+from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QGroupBox, QLineEdit, QPushButton
 
 
 class AutonomousMissionWidget(QGroupBox):
@@ -27,6 +27,10 @@ class AutonomousMissionWidget(QGroupBox):
     def cycle_frequency(self) -> float:
         return float(self._le_cycle_frequency.text())
 
+    @property
+    def bt_send_mission_parameters(self) -> QPushButton:
+        return self._bt_send_mission
+
 
     def __init__(self, parent: QWidget = None):
         super().__init__(parent)
@@ -39,6 +43,8 @@ class AutonomousMissionWidget(QGroupBox):
         self._le_horizontal_rudders: QLineEdit = QLineEdit("15.0")
         self._le_vertical_rudders: QLineEdit = QLineEdit("0.0")
         self._le_cycle_frequency: QLineEdit = QLineEdit("1.0")
+
+        self._bt_send_mission: QPushButton = QPushButton("Enviar Missão")
 
         self.__init_ui__()
         self.__init_backend__()
@@ -70,6 +76,8 @@ class AutonomousMissionWidget(QGroupBox):
         self._layout.addWidget(QLabel("Frequência das Oscilações:"), 5, 0, 1, 1)
         self._layout.addWidget(self._le_cycle_frequency, 5, 1, 1, 1)
         self._layout.addWidget(QLabel("Hz"), 5, 2, 1, 1)
+
+        self._layout.addWidget(self._bt_send_mission, 6, 0, 1, 3)
 
     def __init_backend__(self):
         pass
