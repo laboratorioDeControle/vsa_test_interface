@@ -26,6 +26,7 @@ class PayloadTestWidget(QGroupBox):
         relay_3: int = int(self._chb_relay_3.isChecked())
 
         result: list = [
+            0x03,
             relay_1,
             relay_2,
             relay_3,
@@ -40,6 +41,7 @@ class PayloadTestWidget(QGroupBox):
     def leds_msg(self) -> list:
 
         result: list = [
+            0x04,
             int(self._le_red.text()),
             int(self._le_green.text()),
             int(self._le_blue.text()),
