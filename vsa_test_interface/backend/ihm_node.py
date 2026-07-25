@@ -27,13 +27,16 @@ class IHMNode(Node):
         self._last_odometry_msg_stamp_ns: int = 0
         self._odometry_dt: float = 0.0
 
+        self.send_motors_timer = self.create_timer(1.0, self.send_motors_command)
+        self.send_motors_timer.cancel()
+
         self.__init_ui_integration__()
 
     def __init_ui_integration__(self):
         self._main_window.main_widget.com_topics.bt_start_sampling.clicked.connect(self.__bt_start_stop_topics_com_callback__)
         self._main_window.main_widget.mission.bt_send_mission_parameters.clicked.connect(self.__bt_send_auto_mission_callback__)
 
-        self._main_window.main_widget.mission.manual_mission_widget.bt_send_command.clicked.connect(self.send_motors_command)
+        self._main_window.main_widget.mission.manual_mission_widget.bt_send_command.clicked.connect(self.send_motors_start_periodic)
         self._main_window.main_widget.mission.payload_test_widget.bt_send_command.clicked.connect(self.send_led_command)
 
         self._main_window.main_widget.mission.payload_test_widget.relay_1.stateChanged.connect(self.send_relay_command)
@@ -119,23 +122,42 @@ class IHMNode(Node):
         if self._is_connected:
             pass
 
+    def send_motors_start_periodic(self):
+        periodic_send: bool = self._main_window.main_widget.mission.manual_mission_widget.periodic_send
+
+        if periodic_send:
+            send_started: bool = self._main_window.main_widget.mission.manual_mission_widget.send_started
+
+            if not send_started:
+                period: float = self._main_window.main_widget.mission.manual_mission_widget.send_period
+                self.send_motors_timer = self.create_timer(period, self.send_motors_command)
+                self._main_window.main_widget.mission.manual_mission_widget.send_started = True
+
+            else:
+                self.send_motors_timer.cancel()
+                self._main_window.main_widget.mission.manual_mission_widget.send_started = False
+
+        else:
+            self.send_motors_command()
+
     def send_motors_command(self):
         msg = UInt8MultiArray()
         msg.data = self._main_window.main_widget.mission.manual_mission_widget.motors_msg
         self._pub_can.publish(msg)
 
-        print(self._main_window.main_widget.mission.manual_mission_widget.motors_msg)
+        print("[Motors] -> " , self._main_window.main_widget.mission.manual_mission_widget.motors_msg)
 
     def send_relay_command(self):
         msg = UInt8MultiArray()
         msg.data = self._main_window.main_widget.mission.payload_test_widget.relays_msg
         self._pub_can.publish(msg)
 
-        print(self._main_window.main_widget.mission.payload_test_widget.relays_msg)
+        print("[Relays] -> " , self._main_window.main_widget.mission.payload_test_widget.relays_msg)
 
     def send_led_command(self):
         msg = UInt8MultiArray()
         msg.data = self._main_window.main_widget.mission.payload_test_widget.leds_msg
         self._pub_can.publish(msg)
 
-        print(self._main_window.main_widget.mission.payload_test_widget.leds_msg)
+        print("[Leds] -> " , self._main_window.main_widget.mission.payload_test_widget.leds_msg)
+

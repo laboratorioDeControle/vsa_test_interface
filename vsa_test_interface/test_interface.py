@@ -25,7 +25,7 @@ def main(args=None):
     ihm_node.get_logger().info("Spinning ROS node.")
 
     try:
-        IHMWindow.show()
+        ihm_window.show()
         sys.exit(app.exec_())
 
     finally:

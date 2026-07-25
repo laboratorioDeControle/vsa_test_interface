@@ -38,14 +38,87 @@ class PayloadTestWidget(QGroupBox):
         return result
 
     @property
+    def red(self) -> int:
+        result: int = 0
+
+        try:
+            result = int(self._le_red.text())
+            if result <= 0:
+                result = 0
+            elif result >= 255:
+                result = 255
+
+        except ValueError:
+            pass
+
+        finally:
+            self._le_red.setText(str(result))
+            return result
+
+    @property
+    def green(self) -> int:
+        result: int = 0
+
+        try:
+            result = int(self._le_green.text())
+            if result <= 0:
+                result = 0
+            elif result >= 255:
+                result = 255
+
+        except ValueError:
+            pass
+
+        finally:
+            self._le_green.setText(str(result))
+            return result
+
+    @property
+    def blue(self) -> int:
+        result: int = 0
+
+        try:
+            result = int(self._le_blue.text())
+            if result <= 0:
+                result = 0
+            elif result >= 255:
+                result = 255
+
+        except ValueError:
+            pass
+
+        finally:
+            self._le_blue.setText(str(result))
+            return result
+
+    @property
+    def white(self) -> int:
+        result: int = 0
+
+        try:
+            result = int(self._le_white.text())
+            if result <= 0:
+                result = 0
+            elif result >= 255:
+                result = 255
+
+        except ValueError:
+            pass
+
+        finally:
+            self._le_white.setText(str(result))
+            return result
+
+
+    @property
     def leds_msg(self) -> list:
 
         result: list = [
             0x04,
-            int(self._le_red.text()),
-            int(self._le_green.text()),
-            int(self._le_blue.text()),
-            int(self._le_white.text())
+            self.red,
+            self.green,
+            self.blue,
+            self.white
         ]
 
         return result
@@ -70,7 +143,6 @@ class PayloadTestWidget(QGroupBox):
 
     def __init_ui__(self):
         self.setLayout(self._layout)
-        self.setTitle("Payloads:")
 
         gb_relays: QGroupBox = QGroupBox("Relés:")
         lyt_relays: QGridLayout = QGridLayout()
@@ -84,10 +156,10 @@ class PayloadTestWidget(QGroupBox):
         lyt_leds: QGridLayout = QGridLayout()
         gb_leds.setLayout(lyt_leds)
 
-        lyt_leds.addWidget(QLabel("Vermelho:"), 0, 0, 1, 1)
-        lyt_leds.addWidget(QLabel("Verde:"), 1, 0, 1, 1)
-        lyt_leds.addWidget(QLabel("Azul:"), 2, 0, 1, 1)
-        lyt_leds.addWidget(QLabel("Branco:"), 3, 0, 1, 1)
+        lyt_leds.addWidget(QLabel("Vermelho (0-255):"), 0, 0, 1, 1)
+        lyt_leds.addWidget(QLabel("Verde (0-255):"), 1, 0, 1, 1)
+        lyt_leds.addWidget(QLabel("Azul (0-255):"), 2, 0, 1, 1)
+        lyt_leds.addWidget(QLabel("Branco (0-255):"), 3, 0, 1, 1)
         lyt_leds.addWidget(self._le_red, 0, 1, 1, 1)
         lyt_leds.addWidget(self._le_green, 1, 1, 1, 1)
         lyt_leds.addWidget(self._le_blue, 2, 1, 1, 1)

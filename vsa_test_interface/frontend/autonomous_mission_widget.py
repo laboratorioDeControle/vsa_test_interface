@@ -51,7 +51,6 @@ class AutonomousMissionWidget(QGroupBox):
 
     def __init_ui__(self):
         self.setLayout(self._layout)
-        self.setTitle("Automático:")
 
         self._layout.addWidget(QLabel("Tempo da Missão:"), 0, 0, 1, 1)
         self._layout.addWidget(self._le_mission_time, 0, 1, 1, 1)
