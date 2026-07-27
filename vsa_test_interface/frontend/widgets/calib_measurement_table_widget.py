@@ -1,16 +1,29 @@
+import math
 from PyQt5.QtWidgets import QWidget, QGridLayout, QGroupBox, QCheckBox, QPushButton, QTableWidget, QTableWidgetItem, QSizePolicy
-from ...backend.tools import json_to_dict, dict_to_json
+from ...backend.tools import json_to_dict, dict_to_json, deg2rad, map
 from ...frontend.resources import open_file_dialog, save_file_dialog
 
 
 class CalibMeasurementTableWidget(QGroupBox):
     @property
     def experiment_parameters(self) -> dict:
+        min_input: float = -math.pi / 2
+        max_input: float = math.pi / 2
+
+        rad_vertical_rudders: float = deg2rad(self.vertical_rudders)
+        maped_vertical_rudders: float = map(rad_vertical_rudders, min_input, max_input, -1.0, 1.0)
+
+        rad_horizontal_rudders: float = deg2rad(self.horizontal_rudders)
+        maped_horizontal_rudders: float = map(rad_horizontal_rudders, min_input, max_input, -1.0, 1.0)
+
         result: dict = {
-            "power": self.power,
+            "power": self.power / 100.0,
+            "vertical_rudders": maped_vertical_rudders,
+            "horizontal_rudders": maped_horizontal_rudders,
             "distance": self.distance,
             "time": self.time
         }
+
         return result
 
     @property
@@ -38,6 +51,44 @@ class CalibMeasurementTableWidget(QGroupBox):
         return None
 
     @property
+    def vertical_rudders(self) -> float | None:
+        selected_items: list = self._table.selectedItems()
+
+        if len(selected_items) > 0:
+            vertical: float = 0.0
+            item: QTableWidgetItem = selected_items[0]
+            row: int = item.row()
+
+            try:
+                vertical = float(self._table.item(row, 1).text())
+            except:
+                pass
+            finally:
+                self._table.item(row, 1).setText(str(vertical))
+                return vertical
+
+        return None
+
+    @property
+    def horizontal_rudders(self) -> float | None:
+        selected_items: list = self._table.selectedItems()
+
+        if len(selected_items) > 0:
+            horizontal: float = 0.0
+            item: QTableWidgetItem = selected_items[0]
+            row: int = item.row()
+
+            try:
+                horizontal = float(self._table.item(row, 2).text())
+            except:
+                pass
+            finally:
+                self._table.item(row, 2).setText(str(horizontal))
+                return horizontal
+
+        return None
+
+    @property
     def distance(self) -> float | None:
         selected_items: list = self._table.selectedItems()
 
@@ -47,14 +98,14 @@ class CalibMeasurementTableWidget(QGroupBox):
             row: int = item.row()
 
             try:
-                distance = float(self._table.item(row, 1).text())
+                distance = float(self._table.item(row, 3).text())
 
                 if distance < 0.0:
                     distance = 0.0
             except:
                 pass
             finally:
-                self._table.item(row, 1).setText(str(distance))
+                self._table.item(row, 3).setText(str(distance))
                 return distance
 
         return None
@@ -69,14 +120,14 @@ class CalibMeasurementTableWidget(QGroupBox):
             row: int = item.row()
 
             try:
-                time = float(self._table.item(row, 2).text())
+                time = float(self._table.item(row, 4).text())
 
                 if time < 0.0:
                     time = 0.0
             except:
                 pass
             finally:
-                self._table.item(row, 2).setText(str(time))
+                self._table.item(row, 4).setText(str(time))
                 return time
 
         return None
@@ -87,12 +138,12 @@ class CalibMeasurementTableWidget(QGroupBox):
         if len(selected_items) > 0:
             item: QTableWidgetItem = selected_items[0]
             row: int = item.row()
-            self._table.item(row, 2).setText(str(value))
+            self._table.item(row, 4).setText(str(value))
 
             if value != 0.0:
                 distance: float = self.distance
                 speed: float = distance / value
-                self._table.item(row, 3).setText(str(speed))
+                self._table.item(row, 5).setText(str(speed))
         
 
     def __init__(self, parent: QWidget = None):
@@ -107,7 +158,7 @@ class CalibMeasurementTableWidget(QGroupBox):
         self._bt_export: QPushButton = QPushButton("Exportar")
         self._bt_import: QPushButton = QPushButton("Importar")
 
-        self._headers: list = ["Potência (%)", "Distância (m)", "Tempo (s)", "Velocidade Média (m/s)"]
+        self._headers: list = ["Potência (%)", "Lemes Verticais (grau)", "Lemes Horizontais (grau)", "Distância (m)", "Tempo (s)", "Velocidade Média (m/s)"]
 
         self.__init_ui__()
         self.__init_backend__()
@@ -194,9 +245,11 @@ class CalibMeasurementTableWidget(QGroupBox):
             row: int = self._table.rowCount() - 1
 
             self._table.setItem(row, 0, QTableWidgetItem(str(current_power)))
-            self._table.setItem(row, 1, QTableWidgetItem(str(distance)))
+            self._table.setItem(row, 1, QTableWidgetItem(str(time)))
             self._table.setItem(row, 2, QTableWidgetItem(str(time)))
-            self._table.setItem(row, 3, QTableWidgetItem(str(time)))
+            self._table.setItem(row, 3, QTableWidgetItem(str(distance)))
+            self._table.setItem(row, 4, QTableWidgetItem(str(time)))
+            self._table.setItem(row, 5, QTableWidgetItem(str(time)))
 
             current_power += 10.0
 
@@ -208,11 +261,15 @@ class CalibMeasurementTableWidget(QGroupBox):
 
         for row in range(self._table.rowCount()):
             power: float = float(self._table.item(row, 0).text())
-            distance: float = float(self._table.item(row, 1).text())
-            time: float = float(self._table.item(row, 2).text())
-            speed: float = float(self._table.item(row, 3).text())
+            vertical_rudders: float = float(self._table.item(row, 1).text())
+            horizontal_rudders: float = float(self._table.item(row, 2).text())
+            distance: float = float(self._table.item(row, 3).text())
+            time: float = float(self._table.item(row, 4).text())
+            speed: float = float(self._table.item(row, 5).text())
 
             result["Potência (%)"].append(power)
+            result["Lemes Verticais (grau)"].append(vertical_rudders)
+            result["Lemes Horizontais (grau)"].append(horizontal_rudders)
             result["Distância (m)"].append(distance)
             result["Tempo (s)"].append(time)
             result["Velocidade Média (m/s)"].append(speed)
@@ -220,27 +277,34 @@ class CalibMeasurementTableWidget(QGroupBox):
         return result
 
     def __set_measurements__(self, values: dict):
-        while self._table.rowCount() > 0:
-            self._table.removeRow(self._table.rowCount() - 1)
-
-        self._table.setColumnCount(len(self._headers))
-        self._table.setHorizontalHeaderLabels(self._headers)
-
         if (("Potência (%)" in values.keys()) 
+            and ("Lemes Verticais (grau)" in values.keys())
+            and ("Lemes Horizontais (grau)" in values.keys())
             and ("Distância (m)" in values.keys())
             and ("Tempo (s)" in values.keys())
             and ("Velocidade Média (m/s)" in values.keys())):
 
-            for row in range(len(values["Tempo (s)"])):
-                power: float = values["Potência (%)"][row]
-                distance: float = values["Distância (m)"][row]
-                time: float = values["Tempo (s)"][row]
-                speed: float = values["Velocidade Média (m/s)"][row]
+            if len(values["Tempo (s)"]) > 0:
+                while self._table.rowCount() > 0:
+                    self._table.removeRow(self._table.rowCount() - 1)
 
-                self.__add_measurement__(power, row, 0)
-                self.__add_measurement__(distance, row, 1)
-                self.__add_measurement__(time, row, 2)
-                self.__add_measurement__(speed, row, 3)
+                self._table.setColumnCount(len(self._headers))
+                self._table.setHorizontalHeaderLabels(self._headers)
+                 
+                for row in range(len(values["Tempo (s)"])):
+                    power: float = values["Potência (%)"][row]
+                    vertical_rudders: float = values["Lemes Verticais (grau)"][row]
+                    horizontal_rudders: float = values["Lemes Horizontais (grau)"][row]
+                    distance: float = values["Distância (m)"][row]
+                    time: float = values["Tempo (s)"][row]
+                    speed: float = values["Velocidade Média (m/s)"][row]
+
+                    self.__add_measurement__(power, row, 0)
+                    self.__add_measurement__(vertical_rudders, row, 1)
+                    self.__add_measurement__(horizontal_rudders, row, 2)
+                    self.__add_measurement__(distance, row, 3)
+                    self.__add_measurement__(time, row, 4)
+                    self.__add_measurement__(speed, row, 5)
             
 
     def __add_measurement__(self, measurement: float, row: int, col: int):

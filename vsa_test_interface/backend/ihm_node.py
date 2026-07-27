@@ -76,12 +76,7 @@ class IHMNode(Node):
 
     def __bt_send_auto_mission_callback__(self):
         if self._main_window.main_widget.mission.is_autonomous_mission:
-            mission_time: float = self._main_window.main_widget.mission.autonomous_mission_widget.mission_time
-            mission_start_delay: float = self._main_window.main_widget.mission.autonomous_mission_widget.mission_start_delay
-            thruster_power: float = self._main_window.main_widget.mission.autonomous_mission_widget.thruster_power
-            vertical_rudders: float = self._main_window.main_widget.mission.autonomous_mission_widget.vertical_rudders_angle
-            horizontal_rudders: float = self._main_window.main_widget.mission.autonomous_mission_widget.horizontal_rudders_angle
-            cycles_frequency: float = self._main_window.main_widget.mission.autonomous_mission_widget.cycle_frequency
+            mission_parameters: dict = self._main_window.main_widget.mission.autonomous_mission_widget.mission_parameters
 
             msg: PlanDB = PlanDB()
             msg_plan_maneuver: PlanManeuver = PlanManeuver()
@@ -90,12 +85,20 @@ class IHMNode(Node):
             # VSA Test Maneuver Id
             msg_maneuver.maneuver_imc_id = 900
             msg_maneuver.maneuver_name = "VSA Test Maneuver"
-            msg_maneuver.mission_time = mission_time
-            msg_maneuver.mission_start_delay = mission_start_delay
-            msg_maneuver.thruster_power = thruster_power
-            msg_maneuver.vertical_rudders_angle = (vertical_rudders * math.pi) / 180.0
-            msg_maneuver.horizontal_rudders_angle = (horizontal_rudders * math.pi) / 180.0
-            msg_maneuver.cycle_frequency = cycles_frequency
+
+            msg_maneuver.pre_dive_time = mission_parameters["pre_dive_time"]
+            msg_maneuver.pre_dive_start_delay = mission_parameters["pre_dive_start_delay"]
+            msg_maneuver.pre_dive_thruster_power = mission_parameters["pre_dive_thruster_power"]
+            msg_maneuver.pre_dive_vertical_rudders_angle = mission_parameters["pre_dive_vertical_rudders_angle"]
+            msg_maneuver.pre_dive_horizontal_rudders_angle = mission_parameters["pre_dive_horizontal_rudders_angle"]
+
+            msg_maneuver.dive_time = mission_parameters["dive_time"]
+            msg_maneuver.dive_start_delay = mission_parameters["dive_start_delay"]
+            msg_maneuver.dive_thruster_power = mission_parameters["dive_thruster_power"]
+            msg_maneuver.dive_vertical_rudders_angle = mission_parameters["dive_vertical_rudders_angle"]
+            msg_maneuver.dive_horizontal_rudders_angle = mission_parameters["dive_horizontal_rudders_angle"]
+            msg_maneuver.dive_cycle_frequency = mission_parameters["dive_cycle_frequency"]
+            msg_maneuver.dive_complete_oscilation = mission_parameters["dive_complete_oscilation"]
 
             msg_plan_maneuver.maneuver_id = str(msg_maneuver.maneuver_imc_id)
             msg_plan_maneuver.maneuver = msg_maneuver
@@ -175,7 +178,11 @@ class IHMNode(Node):
         if parameters["power"] is not None:
             if not exectution_experiment:
                 self._main_window.main_widget.calibration.calib_thruster.execution_experiment = True
-                teleop_msg_list[1] = parameters["power"] / 100.0
+
+                teleop_msg_list[1] = parameters["power"]
+                teleop_msg_list[2] = parameters["vertical_rudders"]
+                teleop_msg_list[3] = parameters["horizontal_rudders"]
+
                 self._main_window.main_widget.calibration.calib_thruster.counter.zero()
                 self._main_window.main_widget.calibration.calib_thruster.counter.start()
             else:
@@ -201,4 +208,5 @@ class IHMNode(Node):
             self._main_window.main_widget.calibration.calib_thruster.result.poly = calibration_parameters["interpolation_poly_coef"]
             self._main_window.main_widget.calibration.calib_thruster.result.r2 = calibration_parameters["r2"]
 
-            self._main_window.main_widget.mission.autonomous_mission_widget.thruster_calib = calibration_parameters["interpolation_poly_coef"]
+            self._main_window.main_widget.mission.autonomous_mission_widget.set_thruster_calib(calibration_parameters["interpolation_poly_coef"])
+

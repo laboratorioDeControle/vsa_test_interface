@@ -1,5 +1,6 @@
 import json
 import numpy as np
+import math
 
 
 def json_to_dict(json_path: str) -> dict:
@@ -100,6 +101,15 @@ def poly_coef_text_to_poly_list(poly_coefs: str) -> list:
             result.append(0.0)
 
     return result
+
+def rad2deg(rad_value: float):
+    return (rad_value * 180.0) / math.pi
+
+def deg2rad(deg_value: float):
+    return ((deg_value * math.pi) / 180.0)
+
+def map(value: float, input_min: float = -1.0, input_max: float = 1.0, output_min: float = 0, output_max: float = 255.0):
+        return (value - input_min) * (output_max - output_min) / (input_max - input_min) + output_min
 
 
 def calculate_calibration_parameters(x_list: list, y_list: list) -> dict:
