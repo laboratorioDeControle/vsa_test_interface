@@ -75,3 +75,25 @@ class ComTopicsWidget(QGroupBox):
             bt_text = "Encerrar Comunicação"
 
         self._bt_start_sampling.setText(bt_text)
+
+    def serialize(self) -> dict:
+        return {
+            "odometry": self._le_odometry_topic.text(),
+            "thurster": self._le_thruster_input_topic.text(),
+            "rudders": self._le_rudders_input_topic.text(),
+            "heart_beat": self._le_heart_beat_topic.text(),
+            "can_bus": self._le_can_bus_topic.text()
+        }
+
+    def deserialize(self, parameters: dict):
+        key_widget: dict = {
+            "odometry": self._le_odometry_topic,
+            "thurster": self._le_thruster_input_topic,
+            "rudders": self._le_rudders_input_topic,
+            "heart_beat": self._le_heart_beat_topic,
+            "can_bus": self._le_can_bus_topic
+        }
+
+        for key in parameters.keys():
+            if key in key_widget.keys():
+                key_widget[key].setText(parameters[key])

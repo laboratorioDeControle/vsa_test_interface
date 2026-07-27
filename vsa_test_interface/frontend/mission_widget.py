@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QGroupBox, QCheckBox, QTabWidget, QPushButton
+from PyQt5.QtWidgets import QWidget, QGridLayout, QGroupBox, QCheckBox, QTabWidget, QPushButton
 from .manual_mission_widget import ManualMissionWidget
 from .payloads_test_widget import PayloadTestWidget
 from .autonomous_mission_widget import AutonomousMissionWidget
@@ -44,7 +44,6 @@ class MissionWidget(QGroupBox):
 
     def __init_ui__(self):
         self.setLayout(self._layout)
-        self.setTitle("Missão:")
 
         self._tab_missions.addTab(self._autonomous_mission, "Automatico")
         self._tab_missions.addTab(self._manual_mission, "Manual")
@@ -54,4 +53,12 @@ class MissionWidget(QGroupBox):
         self._layout.addWidget(self._tab_missions, 0, 0, 1, 1)
 
     def __init_backend__(self):
+        pass
+
+    def serialize(self) -> dict:
+        return {
+
+        }
+
+    def deserialize(self, parameters: dict):
         pass

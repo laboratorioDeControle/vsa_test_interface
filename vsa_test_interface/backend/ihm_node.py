@@ -1,9 +1,10 @@
 import math
 from rclpy.node import Node
 from ..frontend.ihm_main_window import IHMWindow
+from .tools import calculate_calibration_parameters
 
 from nav_msgs.msg import Odometry
-from std_msgs.msg import Empty, UInt8MultiArray
+from std_msgs.msg import Empty, UInt8MultiArray, Float64MultiArray
 
 from neptus_msgs.msg import PlanDB
 from neptus_msgs.msg import PlanManeuver
@@ -23,6 +24,7 @@ class IHMNode(Node):
         self._pub_thruster = None
         self._pub_rudders = None
         self._pub_can = None
+        self.teleoperation_pub = None
 
         self._last_odometry_msg_stamp_ns: int = 0
         self._odometry_dt: float = 0.0
@@ -42,6 +44,9 @@ class IHMNode(Node):
         self._main_window.main_widget.mission.payload_test_widget.relay_1.stateChanged.connect(self.send_relay_command)
         self._main_window.main_widget.mission.payload_test_widget.relay_2.stateChanged.connect(self.send_relay_command)
         self._main_window.main_widget.mission.payload_test_widget.relay_3.stateChanged.connect(self.send_relay_command)
+
+        self._main_window.main_widget.calibration.calib_thruster.bt_start_stop_experiment.clicked.connect(self.start_stop_thruster_calib_point)
+        self._main_window.main_widget.calibration.calib_thruster.bt_calculate.clicked.connect(self.calculate_thruster_calibration)
     
 
     def __bt_start_stop_topics_com_callback__(self):
@@ -58,13 +63,13 @@ class IHMNode(Node):
             self._last_odometry_msg_stamp_ns = 0
             self._odometry_dt = 0.0
 
-
         else:
             if self._sub_odometry == None:
                 self._sub_odometry = self.create_subscription(Odometry, odometry_topic, self.__topic_odometry_callback__, 10)
                 self._sub_heart_beat = self.create_subscription(Empty, heart_beat_topic, self.__topic_heart_beat_callback__, 10)
                 self._pub_plan_db = self.create_publisher(PlanDB, plan_db_topic, 10)
                 self._pub_can = self.create_publisher(UInt8MultiArray, can_topic, 10)
+                self.teleoperation_pub = self.create_publisher(Float64MultiArray, '/teleoperation', 10)
 
             self._main_window.main_widget.xy_graph.clear()
             self._main_window.main_widget.speed_graph.clear()
@@ -161,3 +166,39 @@ class IHMNode(Node):
 
         print("[Leds] -> " , self._main_window.main_widget.mission.payload_test_widget.leds_msg)
 
+    def start_stop_thruster_calib_point(self):
+        parameters: dict = self._main_window.main_widget.calibration.calib_thruster.experiment_parameters
+        exectution_experiment: bool = self._main_window.main_widget.calibration.calib_thruster.execution_experiment
+        teleop_msg_list: list = [1.0, 0.0, 0.0, 0.0]
+        teleop_msg: Float64MultiArray = Float64MultiArray()
+
+        if parameters["power"] is not None:
+            if not exectution_experiment:
+                self._main_window.main_widget.calibration.calib_thruster.execution_experiment = True
+                teleop_msg_list[1] = parameters["power"] / 100.0
+                self._main_window.main_widget.calibration.calib_thruster.counter.zero()
+                self._main_window.main_widget.calibration.calib_thruster.counter.start()
+            else:
+                teleop_msg_list[1] = 0.0
+                self._main_window.main_widget.calibration.calib_thruster.execution_experiment = False
+                self._main_window.main_widget.calibration.calib_thruster.counter.stop()
+                seconds: float = float(self._main_window.main_widget.calibration.calib_thruster.counter.elapsed_seconds)
+                self._main_window.main_widget.calibration.calib_thruster.measurement_table.time = seconds
+
+            teleop_msg.data = teleop_msg_list
+            self.teleoperation_pub.publish(teleop_msg)
+
+    def calculate_thruster_calibration(self):
+        measurements: dict = self._main_window.main_widget.calibration.calib_thruster.measurement_table.get_measurements()
+        power: list = []
+        speed: list = []
+
+        if ("Potência (%)" in measurements.keys()) and ("Velocidade Média (m/s)" in measurements.keys()):
+            power = measurements["Potência (%)"]
+            speed = measurements["Velocidade Média (m/s)"]
+
+            calibration_parameters: list = calculate_calibration_parameters(speed, power)
+            self._main_window.main_widget.calibration.calib_thruster.result.poly = calibration_parameters["interpolation_poly_coef"]
+            self._main_window.main_widget.calibration.calib_thruster.result.r2 = calibration_parameters["r2"]
+
+            self._main_window.main_widget.mission.autonomous_mission_widget.thruster_calib = calibration_parameters["interpolation_poly_coef"]
