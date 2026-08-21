@@ -1,16 +1,17 @@
 import time
 
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QWidget, QSplashScreen, QProgressBar
-from PyQt5.QtGui import Qt, QPixmap
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
 
 
-def open_file_dialog(parent: QWidget, title: str, file_description: str, file_extension) -> str:
+def save_file_dialog(parent: QWidget, title: str, file_description: str, file_extension) -> str:
     filter_file: str = file_description + " (*" + file_extension + ")"
     file_path: tuple = QFileDialog.getSaveFileName(parent, title, filter=filter_file)
     return file_path[0]
 
 
-def save_file_dialog(parent: QWidget, title: str, file_description: str, file_extension) -> str:
+def open_file_dialog(parent: QWidget, title: str, file_description: str, file_extension) -> str:
     filter_file: str = file_description + " (*" + file_extension + ")"
     file_path: tuple = QFileDialog.getOpenFileName(parent, title, filter=filter_file)
     return file_path[0]

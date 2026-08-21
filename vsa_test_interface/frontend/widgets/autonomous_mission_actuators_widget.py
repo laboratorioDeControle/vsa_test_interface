@@ -19,6 +19,10 @@ class AutonomousMissionActuatorsWidget(QGroupBox):
             self._le_step_time.setText(str(result))
             return result
 
+    @step_time.setter
+    def step_time(self, value: float):
+        self._le_step_time.setText(str(value))
+
     @property
     def delay_time(self) -> float:
         result: float = 1.0
@@ -35,6 +39,10 @@ class AutonomousMissionActuatorsWidget(QGroupBox):
         finally:
             self._le_delay_time.setText(str(result))
             return result
+
+    @delay_time.setter
+    def delay_time(self, value: float):
+        self._le_delay_time.setText(str(value))
 
     @property
     def thruster_power(self) -> float:
@@ -55,8 +63,11 @@ class AutonomousMissionActuatorsWidget(QGroupBox):
             pass
 
         finally:
-            print(result)
             return result
+
+    @thruster_power.setter
+    def thruster_power(self, value: float):
+        self._le_thruster_power.setText(str(value))
 
     
     @property
@@ -71,6 +82,10 @@ class AutonomousMissionActuatorsWidget(QGroupBox):
         finally:
             self._le_horizontal_rudders.setText(str(result))
             return result
+
+    @horizontal_rudders_angle.setter
+    def horizontal_rudders_angle(self, value: float):
+        self._le_horizontal_rudders.setText(str(value))
         
     
     @property
@@ -85,6 +100,10 @@ class AutonomousMissionActuatorsWidget(QGroupBox):
         finally:
             self._le_vertical_rudders.setText(str(result))
             return result
+
+    @vertical_rudders_angle.setter
+    def vertical_rudders_angle(self, value: float):
+        self._le_vertical_rudders.setText(str(value))
 
     @property
     def thruster_calib(self) -> list:

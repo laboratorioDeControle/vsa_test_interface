@@ -20,8 +20,8 @@ def json_to_dict(json_path: str) -> dict:
     return result
 
 
-def dict_to_json(output_file_path: str, output_dict: dict, output_file_extension: str = ".json") -> None:
-    with open(output_file_path + output_file_extension, "w", encoding='utf-8') as f:
+def dict_to_json(output_file_path: str, output_dict: dict) -> None:
+    with open(output_file_path, "w", encoding='utf-8') as f:
         output: str = json.dumps(output_dict, indent=2, ensure_ascii=False)
         f.write(output)
         f.close()

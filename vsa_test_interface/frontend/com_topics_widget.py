@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QGroupBox, QPushButton
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QGroupBox, QPushButton, QCheckBox
 
 
 class ComTopicsWidget(QGroupBox):
@@ -23,8 +23,16 @@ class ComTopicsWidget(QGroupBox):
         return self._le_can_bus_topic.text()
 
     @property
+    def abort_topic(self) -> str:
+        return self._le_abort_topic.text()
+
+    @property
     def bt_start_sampling(self) -> QPushButton:
         return self._bt_start_sampling
+
+    @property
+    def chb_save_bag(self) -> QCheckBox:
+        return self._chb_save_bag
 
     def __init__(self, parent: QWidget = None):
         super().__init__(parent)
@@ -36,8 +44,12 @@ class ComTopicsWidget(QGroupBox):
         self._le_rudders_input_topic: QLineEdit = QLineEdit("/lauv/controller/rudders_setpoints")
         self._le_heart_beat_topic: QLineEdit = QLineEdit("/imc_heartbeat")
         self._le_can_bus_topic: QLineEdit = QLineEdit("/write_can_msg")
+        self._le_abort_topic: QLineEdit = QLineEdit("/abort")
 
         self._bt_start_sampling: QPushButton = QPushButton("Iniciar Comunicação")
+
+        self._chb_save_bag: QCheckBox = QCheckBox("Gravar Bag")
+        self._chb_save_bag.setEnabled(False)
 
         self.__init_ui__()
         self.__init_backend__()
@@ -56,8 +68,11 @@ class ComTopicsWidget(QGroupBox):
         self._layout.addWidget(self._le_heart_beat_topic, 3, 1, 1, 1)
         self._layout.addWidget(QLabel("CAN Bus:"), 4, 0, 1, 1)
         self._layout.addWidget(self._le_can_bus_topic, 4, 1, 1, 1)
+        self._layout.addWidget(QLabel("Abort:"), 5, 0, 1, 1)
+        self._layout.addWidget(self._le_abort_topic, 5, 1, 1, 1)
 
-        self._layout.addWidget(self._bt_start_sampling, 5, 0, 1, 2)
+        self._layout.addWidget(self._chb_save_bag, 6, 0, 1, 1)
+        self._layout.addWidget(self._bt_start_sampling, 6, 1, 1, 1)
 
     def __init_backend__(self):
         pass
@@ -68,6 +83,8 @@ class ComTopicsWidget(QGroupBox):
         self._le_rudders_input_topic.setEnabled(not start_stop)
         self._le_heart_beat_topic.setEnabled(not start_stop)
         self._le_can_bus_topic.setEnabled(not start_stop)
+        self._le_abort_topic.setEnabled(not start_stop)
+        self._chb_save_bag.setEnabled(start_stop)
 
         bt_text: str = "Iniciar Comunicação"
         
@@ -82,7 +99,8 @@ class ComTopicsWidget(QGroupBox):
             "thurster": self._le_thruster_input_topic.text(),
             "rudders": self._le_rudders_input_topic.text(),
             "heart_beat": self._le_heart_beat_topic.text(),
-            "can_bus": self._le_can_bus_topic.text()
+            "can_bus": self._le_can_bus_topic.text(),
+            "abort": self._le_abort_topic.text()
         }
 
     def deserialize(self, parameters: dict):
@@ -91,7 +109,8 @@ class ComTopicsWidget(QGroupBox):
             "thurster": self._le_thruster_input_topic,
             "rudders": self._le_rudders_input_topic,
             "heart_beat": self._le_heart_beat_topic,
-            "can_bus": self._le_can_bus_topic
+            "can_bus": self._le_can_bus_topic,
+            "abort": self._le_abort_topic
         }
 
         for key in parameters.keys():
