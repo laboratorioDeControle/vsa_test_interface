@@ -31,7 +31,7 @@ class IHMWindow(QMainWindow):
 
     def serialize(self):
         serialization: dict = self.main_widget.serialize()
-        dict_to_json("parameters", serialization)
+        dict_to_json("parameters.json", serialization)
 
     def deserialize(self):
         serialization: dict = json_to_dict("parameters.json")

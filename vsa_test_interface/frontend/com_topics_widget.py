@@ -39,11 +39,11 @@ class ComTopicsWidget(QGroupBox):
 
         self._layout: QGridLayout = QGridLayout()
 
-        self._le_odometry_topic: QLineEdit = QLineEdit("/lauv/dynamics/odometry")
-        self._le_thruster_input_topic: QLineEdit = QLineEdit("/lauv/controller/thrusters_setpoints")
-        self._le_rudders_input_topic: QLineEdit = QLineEdit("/lauv/controller/rudders_setpoints")
+        self._le_odometry_topic: QLineEdit = QLineEdit("/dynamics/odometry")
+        self._le_thruster_input_topic: QLineEdit = QLineEdit("/controller/thrusters_setpoints")
+        self._le_rudders_input_topic: QLineEdit = QLineEdit("/controller/rudders_setpoints")
         self._le_heart_beat_topic: QLineEdit = QLineEdit("/imc_heartbeat")
-        self._le_can_bus_topic: QLineEdit = QLineEdit("/write_can_msg")
+        self._le_can_bus_topic: QLineEdit = QLineEdit("/general_purpose_can_tx")
         self._le_abort_topic: QLineEdit = QLineEdit("/abort")
 
         self._bt_start_sampling: QPushButton = QPushButton("Iniciar Comunicação")
