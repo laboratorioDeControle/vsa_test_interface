@@ -259,10 +259,10 @@ class IHMNode(Node):
             return
 
         # Obter os valores de offset do widget
-        servo_top_offset = self._main_window.main_widget.mission.actuators_test_widget.servo_down_offset
-        servo_right_offset = self._main_window.main_widget.mission.actuators_test_widget.servo_up_offset
-        servo_down_offset = self._main_window.main_widget.mission.actuators_test_widget.servo_left_offset
-        servo_left_offset = self._main_window.main_widget.mission.actuators_test_widget.servo_right_offset
+        servo_top_offset = self._main_window.main_widget.mission.actuators_test_widget.top_offset
+        servo_right_offset = self._main_window.main_widget.mission.actuators_test_widget.right_offset
+        servo_down_offset = self._main_window.main_widget.mission.actuators_test_widget.bottom_offset
+        servo_left_offset = self._main_window.main_widget.mission.actuators_test_widget.left_offset
 
         # Criar a requisição com os parâmetros
         request = SetParameters.Request()

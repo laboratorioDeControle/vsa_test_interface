@@ -70,7 +70,8 @@ class IHMMainWidget(QWidget):
     def serialize(self) -> dict:
         return {
             "com_topics": self.com_topics.serialize(),
-            "calibration": self.calibration.serialize()
+            "calibration": self.calibration.serialize(),
+            "offsets": self.mission.actuators_test_widget.serialize()
         }
 
     def deserialize(self, parameters: dict):
@@ -81,3 +82,6 @@ class IHMMainWidget(QWidget):
             self.calibration.deserialize(parameters["calibration"])
             thruster_calib: list = self.calibration.calib_thruster.result.poly_coef
             self.mission.autonomous_mission_widget.thruster_calib = thruster_calib
+
+        if "offsets" in parameters.keys():
+            self.mission.actuators_test_widget.deserialize(parameters["offsets"])

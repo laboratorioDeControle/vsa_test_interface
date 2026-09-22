@@ -22,11 +22,11 @@ class ActuatorsCANTestWidget(QGroupBox):
         
 
     @property
-    def servo_1(self) -> int:
+    def servo_top(self) -> int:
         result: int = 0
 
         try:
-            result = int(self._le_servo_1.text())
+            result = int(self._le_top.text())
             if result < 0:
                 result = 0
             elif result >= 255:
@@ -36,15 +36,15 @@ class ActuatorsCANTestWidget(QGroupBox):
             pass
 
         finally:
-            self._le_servo_1.setText(str(result))
+            self._le_top.setText(str(result))
             return result
 
     @property
-    def servo_2(self) -> int:
+    def servo_right(self) -> int:
         result: int = 0
 
         try:
-            result = int(self._le_servo_2.text())
+            result = int(self._le_right.text())
             if result < 0:
                 result = 0
             elif result >= 255:
@@ -54,15 +54,15 @@ class ActuatorsCANTestWidget(QGroupBox):
             pass
 
         finally:
-            self._le_servo_2.setText(str(result))
+            self._le_right.setText(str(result))
             return result
 
     @property
-    def servo_3(self) -> int:
+    def servo_bottom(self) -> int:
         result: int = 0
 
         try:
-            result = int(self._le_servo_3.text())
+            result = int(self._le_bottom.text())
             if result < 0:
                 result = 0
             elif result >= 255:
@@ -72,15 +72,15 @@ class ActuatorsCANTestWidget(QGroupBox):
             pass
 
         finally:
-            self._le_servo_3.setText(str(result))
+            self._le_bottom.setText(str(result))
             return result
 
     @property
-    def servo_4(self) -> int:
+    def servo_left(self) -> int:
         result: int = 0
 
         try:
-            result = int(self._le_servo_4.text())
+            result = int(self._le_left.text())
             if result < 0:
                 result = 0
             elif result >= 255:
@@ -90,7 +90,7 @@ class ActuatorsCANTestWidget(QGroupBox):
             pass
 
         finally:
-            self._le_servo_4.setText(str(result))
+            self._le_left.setText(str(result))
             return result
 
     @property
@@ -128,10 +128,10 @@ class ActuatorsCANTestWidget(QGroupBox):
 
         result: list = [
             0x01,
-            self.servo_1,
-            self.servo_2,
-            self.servo_3,
-            self.servo_4,
+            self.servo_left,
+            self.servo_bottom,
+            self.servo_right,
+            self.servo_top,
             truster_dir,
             int(abs(self.thruster)),
             0x01
@@ -165,10 +165,10 @@ class ActuatorsCANTestWidget(QGroupBox):
         self._layout: QGridLayout = QGridLayout()
 
         self._le_thruster: QLineEdit = QLineEdit("0")
-        self._le_servo_1: QLineEdit = QLineEdit("0")
-        self._le_servo_2: QLineEdit = QLineEdit("0")
-        self._le_servo_3: QLineEdit = QLineEdit("0")
-        self._le_servo_4: QLineEdit = QLineEdit("0")
+        self._le_top: QLineEdit = QLineEdit("0")
+        self._le_right: QLineEdit = QLineEdit("0")
+        self._le_bottom: QLineEdit = QLineEdit("0")
+        self._le_left: QLineEdit = QLineEdit("0")
 
         self._le_send_frequency: QLineEdit = QLineEdit("1.0")
 
@@ -197,17 +197,17 @@ class ActuatorsCANTestWidget(QGroupBox):
         self._layout.addWidget(QLabel("Thruster (0-255):"), 0, 0, 1, 1)
         self._layout.addWidget(self._le_thruster, 0, 1, 1, 2)
 
-        self._layout.addWidget(QLabel("Servo 1 (Top) (0-255):"), 1, 0, 1, 1)
-        self._layout.addWidget(self._le_servo_1, 1, 1, 1, 2)
+        self._layout.addWidget(QLabel("Top (0-255):"), 1, 0, 1, 1)
+        self._layout.addWidget(self._le_top, 1, 1, 1, 2)
 
-        self._layout.addWidget(QLabel("Servo 2 (Right) (0-255):"), 2, 0, 1, 1)
-        self._layout.addWidget(self._le_servo_2, 2, 1, 1, 2)
+        self._layout.addWidget(QLabel("Right (0-255):"), 2, 0, 1, 1)
+        self._layout.addWidget(self._le_right, 2, 1, 1, 2)
 
-        self._layout.addWidget(QLabel("Servo 3 (Down) (0-255):"), 3, 0, 1, 1)
-        self._layout.addWidget(self._le_servo_3, 3, 1, 1, 2)
+        self._layout.addWidget(QLabel("Bottom (0-255):"), 3, 0, 1, 1)
+        self._layout.addWidget(self._le_bottom, 3, 1, 1, 2)
         
-        self._layout.addWidget(QLabel("Servo 4 (Left) (0-255):"), 4, 0, 1, 1)
-        self._layout.addWidget(self._le_servo_4, 4, 1, 1, 2)
+        self._layout.addWidget(QLabel("Left (0-255):"), 4, 0, 1, 1)
+        self._layout.addWidget(self._le_left, 4, 1, 1, 2)
 
         self._layout.addWidget(self._chb_cycle_send, 5, 0, 1, 1)
         self._layout.addWidget(self._wd_period_parameters, 5, 1, 1, 2)
